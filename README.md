@@ -1,3 +1,19 @@
+# Reproduction: overridden `can*()` methods no longer protect resource pages (v5.11.2)
+
+`App\Filament\Resources\Users\UserResource` has no policy and overrides `canCreate()`, `canView()` and `canEdit()` to return `false`.
+
+```bash
+composer setup
+php artisan test --filter=ResourcePageAuthorizationTest
+```
+
+- `filament/filament` **5.11.0**: all 4 tests pass (create/view/edit pages return 403).
+- `filament/filament` **5.11.2** (pinned in `composer.json`): 3 tests fail, the pages return 200.
+
+Likely cause: #20957 changed the pages from `abort_unless(canEdit(...), 403)` to `authorizeEdit(...)`, which skips the overridden `canEdit()`.
+
+---
+
 # Filament issue reproduction template
 
 A minimal Laravel + Filament application for reproducing bugs you would like to file at [`filamentphp/filament`](https://github.com/filamentphp/filament/issues).
